@@ -1,2 +1,2 @@
 # winmac
-App for Windows and MacOS
+Node App for Windows and MacOS
