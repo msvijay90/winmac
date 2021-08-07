@@ -1,0 +1,16 @@
+{
+  "name": "node-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msvijay90/winmac.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "Vijay"
+}

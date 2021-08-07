@@ -1,0 +1,18 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>demoapp</groupId>
+	<artifactId>demo-app</artifactId>
+	<version>trunk</version>
+	<packaging>pom</packaging>
+	<distributionManagement>
+		<repository>
+		<name>demoapp-releases</name>
+		<url>http://localhost:8081/artifactory/libs-releases-local</url>
+	</distributionManagement>
+	<modules>
+		<module>app/windows</module>
+		<module>app/macos</module>
+		<module>backend</module>
+	</modules>
+</project>

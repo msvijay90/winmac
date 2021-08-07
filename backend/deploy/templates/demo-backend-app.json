@@ -1,0 +1,140 @@
+{
+   "AWSTemplateFormatVersion":"2010-09-09",
+   "Description":"AWS CloudFormation Sample Template: Create an Amazon EC2 instance running the linux custom AMI. Deploy application on ECS as docker container",
+   "Parameters":{
+      "KeyName":{
+         "Description":"Name of an existing EC2 KeyPair to enable SSH access to the instance",
+         "Type":"AWS::EC2::KeyPair::KeyName",
+         "Default":"admin-Default",
+         "ConstraintDescription":"must be the name of an existing EC2 KeyPair."
+      },
+      "InstanceType":{
+         "Description":"WebServer EC2 instance type",
+         "Type":"String",
+         "Default":"c3.4xlarge",
+         "ConstraintDescription":"must be a valid EC2 instance type."
+      },
+      "SSHLocation":{
+         "Description":"The IP address range that can be used to SSH to the EC2 instances",
+         "Type":"String",
+         "MinLength":"9",
+         "MaxLength":"18",
+         "Default":"0.0.0.0/0",
+         "AllowedPattern":"(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+         "ConstraintDescription":"must be a valid IP CIDR range of the form x.x.x.x/x."
+      },
+      "Network":{
+         "Description":"The Network to the EC2 instances",
+         "Type":"String"
+      },
+      "AvailabilityZone":{
+         "Description":"The AZ of the EC2 instance",
+         "Type":"String"
+		 
+      },
+      "SubnetId":{
+         "Description":"Primary SubnetId",
+         "Type":"AWS::EC2::Subnet::Id",
+		  "Default":"subnet-1"
+      },
+	  "VpcId":{
+         "Description":"Primary VpcId",
+         "Type":"AWS::EC2::Vpc::Id",
+		   "Default":"vpc-1"
+      },
+	  "customAMI":{
+         "Description":"Custom AMI ID",
+         "Type":"String",
+		   "Default":"custom-ami-id"
+      }
+   },
+   "Resources":{
+      "DEMOAPPEC2Instance":{
+         "Type":"AWS::EC2::Instance",
+         "Properties":{
+            "InstanceType":{
+               "Ref":"InstanceType"
+            },
+            "KeyName":{
+               "Ref":"KeyName"
+            },
+            "SubnetId":{
+               "Ref":"SubnetId"
+            },
+			"VpcId":{
+               "Ref":"VpcId"
+            },
+            "ImageId":{
+               "Ref":"customAMI"
+            },
+			"SecurityGroups":{
+			"Type":"AWS::EC2::SecurityGroup",
+			"Properties":{
+			"GroupDescription":"Enable SSH access via port 22",
+			"SecurityGroupIngress":[
+			   {
+				  "IpProtocol":"tcp",
+				  "FromPort":"22",
+				  "ToPort":"22",
+				  "CidrIp":{
+					 "Ref":"SSHLocation"
+				  }
+			   }
+			]
+			}
+			}
+         }
+      },
+	  "DEMOAPPBackendNodeECSService": {
+		  "Type" : "AWS::ECS::Service",
+		  "DependsOn" : ["DEMOAPPBackendNodeTaskDefinition","DEMOAPPEC2Instance"],
+		  "Properties":{
+            "Cluster":"DEMOECSCluster",
+            "TaskDefinition":{"Ref":"DEMOAPPBackendNodeTaskDefinition"}
+		  }
+	  },
+	  "DEMOAPPBackendNodeTaskDefinition": {
+		  "Type" : "AWS::ECS::TaskDefinition",
+		  "DependsOn" : ["DEMOAPPEC2Instance"],
+		  "Properties":{
+            "ContainerDefinitions": [
+				{
+					"Name" : "demo-backend-app",
+					"Environment" : [
+						{
+							"Name":"DEPLOY_ENV",
+							"Value":"PROD"
+						}
+					],
+					"Essential" : true,
+					"image" : "123456789101.dkr.ecr.eu-east-1.amazonaws.com/backend-node-app:master",
+					"portMappings": [
+						{
+							"HostPort" : 3000,
+							"ConatainerPort":8080
+						}
+					]
+				}
+			]
+		  }
+	  }
+      
+   },
+   "Outputs":{
+      "InstanceId":{
+         "Description":"InstanceId of the newly created EC2 instance",
+         "Value":{
+            "Ref":"EC2Instance"
+         }
+      },
+      "AZ":{
+         "Description":"Availability Zone of the newly created EC2 instance",
+         "Value":{
+            "Fn::GetAtt":[
+               "EC2Instance",
+               "AvailabilityZone"
+            ]
+         }
+      }
+   }
+}

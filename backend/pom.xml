@@ -1,0 +1,131 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>winmacapp</groupId>
+	<artifactId>winmac-app</artifactId>
+	<version>trunk</version>
+	<packaging>pom</packaging>
+	<distributionManagement>
+		<repository>
+		<name>winmac-releases</name>
+		<url>http://localhost:8081/artifactory/libs-releases-local</url>
+	</distributionManagement>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.test.skip>false</maven.test.skip>
+		<docker.plugin-version>0.4.3</docker.plugin-version>
+		<docker.imageName>winmacapp/backendapp:trunk</docker.imageName>
+		<docker.registry.serverId>local-docker-repo</docker.registry.serverId>
+	</properties>
+	<profiles>
+		<profile>
+			<id>prod</id>
+		</profile>
+	</profiles>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.3.2</version>
+				<executions>
+					<execution>
+						<id>npm install</id>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<phase>initialize</phase>
+						<configuration>
+							<executable>npm</executable>
+							<arguments>
+								<argument>install</argument>
+							</arguments>
+						</configuration>
+					</execution>
+					<execution>
+						<id>npm install</id>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<phase>pre-clean</phase>
+						<configuration>
+							<executable>npm</executable>
+							<arguments>
+								<argument>install</argument>
+							</arguments>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>npm run prepare-for-maven</id>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<phase>prepare-package</phase>
+						<configuration>
+							<executable>npm</executable>
+							<arguments>
+								<argument>run</argument>
+								<argument>prepare-for-maven-war</argument>
+							</arguments>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>npm run publish</id>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<phase>deploy</phase>
+						<configuration>
+							<executable>npm</executable>
+							<arguments>
+								<argument>publish</argument>
+							</arguments>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>npm run test</id>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<phase>test</phase>
+						<configuration>
+							<executable>npm</executable>
+							<arguments>
+								<argument>run</argument>
+								<argument>test</argument>
+								<argument>--</argument>
+								<argument>--skipTests=${maven.test.skip}</argument>
+							</arguments>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>npm run clean (clean)</id>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<phase>clean</phase>
+						<configuration>
+							<executable>npm</executable>
+							<arguments>
+								<argument>run</argument>
+								<argument>clean</argument>
+							</arguments>
+						</configuration>
+					</execution>
+				</executions>
+
+				<configuration>
+					<environmentVariables>
+						<NPM_CONFIG_PREFIX>${basedir}/npm</NPM_CONFIG_PREFIX>
+						<NPM_CONFIG_CACHE>${NPM_CONFIG_PREFIX}/cache</NPM_CONFIG_CACHE>
+						<NPM_CONFIG_TMP>${project.build.directory}/npmtmp</NPM_CONFIG_TMP>
+					</environmentVariables>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

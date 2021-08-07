@@ -1,0 +1,17 @@
+---
+- host: windowsserver
+  remote_user: root
+  name: Deploying application on windows
+  task:
+    - name: Copy exe file to windows host
+      copy:
+        src: /jenkins/demoapp/windows/demoapp.exe
+        dest: /opt/my-application
+- host: macosserver
+  remote_user: root
+  name: Deploying application on macos 
+  task:
+    - name: Copy pkg file to macos host
+      copy:
+        src: /jenkins/demoapp/macos/demoapp.pkg
+        dest: /opt/my-application
