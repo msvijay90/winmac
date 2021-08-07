@@ -215,7 +215,8 @@ pipeline {
 							echo 'CodeSigning'
 							steps {
 								echo 'Signing exe file'
-								bat '"/local/signtool.exe" sign /f WinCSCert.cer /p "%SIGNPASS%" demoapp.exe'
+								
+								bat 'signtool sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /f "/path/to/signingCert.pfx" /p signingCertPassword "/path/to/demoapp.exe'
 							}
 							
 						}
